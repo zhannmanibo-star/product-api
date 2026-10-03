@@ -3,12 +3,20 @@
 
 # Environment
 .env
+.env.*
 !.env.example
 
 # Dependencies
 vendor/
 app/vendor/
-composer.lock
+
+# Certificates / Keys
+certs/
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
 
 # Cache & Logs
 runtime/*
