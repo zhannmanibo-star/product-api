@@ -267,12 +267,17 @@ class Database {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
         );
-        if ($driver === 'mysql') {
-    $caPath = ROOT_DIR . 'certs/ca.pem';
+       if ($driver === 'mysql') {
+    // Render secret file path, with local fallback
+    $caPath = getenv('DB_SSL_CA');
 
-    if (!is_readable($caPath)) {
+    if (!$caPath) {
+        $caPath = ROOT_DIR . 'certs/ca.pem';
+    }
+
+    if (!is_file($caPath) || !is_readable($caPath)) {
         throw new RuntimeException(
-            'Missing Aiven CA certificate: certs/ca.pem'
+            'Missing Aiven CA certificate: ' . $caPath
         );
     }
 
