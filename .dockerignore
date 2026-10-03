@@ -1,6 +1,7 @@
 .git
 .env
 certs
+ca.pem
 vendor
 runtime/*
 *.log
