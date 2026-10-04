@@ -164,6 +164,74 @@ class AuthController extends Controller
             'message' => 'Logged out successfully.'
         ]);
     }
+    public function create()
+{
+    $this->api->require_method('POST');
+
+    $input = $this->api->body();
+
+    $username = trim((string) ($input['username'] ?? ''));
+    $email = trim((string) ($input['email'] ?? ''));
+    $password = (string) ($input['password'] ?? '');
+    $role = trim((string) ($input['role'] ?? 'user'));
+
+    if ($username === '') {
+        $this->api->respond_error('Username is required.', 422);
+    }
+
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $this->api->respond_error('Valid email is required.', 422);
+    }
+
+    if (strlen($password) < 8) {
+        $this->api->respond_error(
+            'Password must contain at least 8 characters.',
+            422
+        );
+    }
+
+    if (!in_array($role, ['user', 'admin'], true)) {
+        $role = 'user';
+    }
+
+    $stmt = $this->db->raw(
+        'SELECT id
+         FROM users
+         WHERE username = ? OR email = ?
+         LIMIT 1',
+        [$username, $email]
+    );
+
+    $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($existing) {
+        $this->api->respond_error(
+            'Username or email already exists.',
+            409
+        );
+    }
+
+    $this->db->raw(
+        'INSERT INTO users
+            (username, email, password, role, created_at)
+         VALUES (?, ?, ?, ?, NOW())',
+        [
+            $username,
+            $email,
+            password_hash($password, PASSWORD_BCRYPT),
+            $role
+        ]
+    );
+
+    $this->api->respond([
+        'message' => 'User created successfully.',
+        'user' => [
+            'username' => $username,
+            'email' => $email,
+            'role' => $role
+        ]
+    ], 201);
+}
 
     public function options()
     {

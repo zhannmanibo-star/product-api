@@ -71,3 +71,5 @@ $router->delete('/api/products/{id}', 'ProductController::destroy');
 $router->options('/api/products/{id}', 'ProductController::options');
 $router->post('/api/logout', 'AuthController::logout');
 $router->options('/api/logout', 'AuthController::options');
+$router->post('/api/create', 'AuthController::create');
+$router->options('/api/create', 'AuthController::options');
